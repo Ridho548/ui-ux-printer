@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>WebPrint — Epson L360</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap"
+    rel="stylesheet">
+
+  <style>
+    :root {
+      --brand-blue: #18497B;
+      --brand-gold: #F4C500;
+      --brand-gold-hover: #DDB200;
+      --surface: rgba(255, 255, 255, 0.12);
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --border-color: rgba(255, 255, 255, 0.2);
+      --radius-lg: 24px;
+      --radius-md: 12px;
+      --shadow-glow: 0 10px 40px 0 rgba(0, 0, 0, 0.6);
+      --danger: #ef4444;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      color: var(--text-main);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: radial-gradient(circle at top, #11284A 0%, #030712 100%);
+      overflow-x: hidden;
+      padding: 40px 20px;
+      /* Bawaan Desktop */
+    }
+
+    #galaxy-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5 {
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 800px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* KOTAK KACA (GLASSMORPHISM) */
+    .card {
+      background: var(--surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-glow);
+      overflow: hidden;
+      margin-bottom: 30px;
+    }
+
+    /* HEADER */
+    .header-banner {
+      background: linear-gradient(135deg, rgba(24, 73, 123, 0.8) 0%, rgba(28, 91, 155, 0.4) 100%);
+      padding: 24px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid var(--brand-gold);
+    }
+
+    .header-banner h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-banner h1 span {
+      background: var(--brand-gold);
+      color: #000;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 700;
+    }
+
+    .btn-logout {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .btn-logout:hover {
+      background: rgba(255, 255, 255, 0.25);
+    }
+
+    /* NAVIGASI DESKTOP */
+    .nav-container {
+      padding: 24px 32px 0;
+    }
+
+    nav {
+      display: flex;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 6px;
+      border-radius: 16px;
+      gap: 6px;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 12px;
+      font-size: 0.95rem;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      background: transparent;
+      color: var(--text-muted);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .tab-btn:hover {
+      color: #FFF;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .tab-btn.active {
+      background: var(--brand-gold);
+      color: #000;
+      box-shadow: 0 4px 12px rgba(244, 197, 0, 0.4);
+    }
+
+    .tab-panel {
+      padding: 32px;
+      animation: fadeIn 0.4s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    .section-title {
+      color: var(--brand-gold);
+      font-size: 1.4rem;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    label {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    input:not([type="file"]),
+    select {
+      width: 100%;
+      padding: 14px;
+      font-size: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      outline: none;
+      background: rgba(0, 0, 0, 0.3);
+      color: #FFF;
+      transition: all 0.3s ease;
+    }
+
+    input::placeholder {
+      color: #64748B;
+    }
+
+    option {
+      color: #000;
+      background: #FFF;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: var(--brand-gold);
+      background: rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 0 3px rgba(244, 197, 0, 0.2);
+    }
+
+    .dropzone {
+      border: 2px dashed rgba(255, 255, 255, 0.3);
+      border-radius: var(--radius-md);
+      padding: 32px 16px;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .dropzone:hover,
+    .dropzone.dragover {
+      border-color: var(--brand-gold);
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    .dropzone-icon {
+      width: 48px;
+      height: 48px;
+      color: var(--brand-gold);
+      margin-bottom: 12px;
+    }
+
+    .dropzone h4 {
+      color: var(--brand-gold);
+      font-size: 1.1rem;
+      margin-bottom: 4px;
+    }
+
+    .dropzone p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .dropzone input[type="file"] {
+      display: none;
+    }
+
+    .btn-primary {
+      padding: 16px;
+      font-size: 1.05rem;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      border: none;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      background: var(--brand-gold);
+      color: #000;
+      box-shadow: 0 4px 12px rgba(244, 197, 0, 0.3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:active {
+      transform: scale(0.97);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #FFF;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      padding: 10px 16px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* AUTH SCREEN */
+    #pin-screen {
+      max-width: 400px;
+      margin: 80px auto;
+      text-align: center;
+      padding: 40px 32px;
+    }
+
+    .auth-logo {
+      width: 64px;
+      height: 64px;
+      background: rgba(0, 0, 0, 0.4);
+      color: var(--brand-gold);
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      border: 1px solid var(--border-color);
+    }
+
+    #pin-input {
+      text-align: center;
+      font-size: 1.2rem;
+      padding: 16px;
+      margin-bottom: 16px;
+      letter-spacing: 2px;
+    }
+
+    /* QUEUE */
+    .queue-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .queue-item {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: var(--radius-md);
+    }
+
+    .queue-item-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+
+    .badge-waiting {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fcd34d;
+    }
+
+    .badge-processing {
+      background: rgba(59, 130, 246, 0.2);
+      color: #93c5fd;
+    }
+
+    .badge-done {
+      background: rgba(16, 185, 129, 0.2);
+      color: #6ee7b7;
+    }
+
+    .badge-error {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+    }
+
+    /* ==========================================
+       MOBILE APP MODE (KHUSUS LAYAR HP) - REVISI
+       ========================================== */
+    @media (max-width: 768px) {
+      body {
+        padding: 0;
+        /* Hapus padding agar layar penuh */
+      }
+
+      .container {
+        max-width: 100%;
+        border-radius: 0;
+      }
+
+      .card {
+        border-radius: 0;
+        border: none;
+        margin-bottom: 0;
+      }
+
+      /* 1. HEADER: Dibuat tinggi presisi agar menyatu dengan navbar */
+      .header-banner {
+        height: 66px;
+        padding: 0 20px;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background: rgba(10, 15, 30, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border-bottom: none;
+      }
+
+      .header-banner h1 {
+        font-size: 1.3rem;
+      }
+
+      .btn-logout {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+      }
+
+      /* 2. NAVBAR ATAS: Menempel tepat di bawah header layaknya App-Bar */
+      .nav-container {
+        position: sticky;
+        top: 65px;
+        /* Menempel 1px overlap di bawah header agar tidak ada celah */
+        z-index: 99;
+        background: rgba(10, 15, 30, 0.85);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        padding: 0 16px 16px 16px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        /* Bayangan dramatis ke bawah */
+      }
+
+      nav {
+        display: flex;
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 6px;
+        margin: 0;
+        gap: 4px;
+      }
+
+      /* 3. DESAIN TOMBOL TAB KREATIF & ELEGAN */
+      .tab-btn {
+        flex-direction: column;
+        gap: 4px;
+        padding: 8px 4px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        background: transparent !important;
+        box-shadow: none !important;
+        color: #94A3B8;
+        border-radius: 12px;
+      }
+
+      .tab-btn span.icon {
+        font-size: 1.2rem;
+        transition: transform 0.2s;
+      }
+
+      /* Animasi saat menu aktif */
+      .tab-btn.active {
+        color: #000;
+        background: var(--brand-gold) !important;
+        box-shadow: 0 4px 10px rgba(244, 197, 0, 0.3) !important;
+      }
+
+      .tab-btn.active span.icon {
+        transform: scale(1.15);
+      }
+
+      /* 4. KONTEN (TOMBOL KUNING SEKARANG AMAN) */
+      .tab-panel {
+        padding: 24px 20px 60px 20px;
+        /* Jarak wajar tanpa terpotong navbar */
+      }
+
+      .section-title {
+        font-size: 1.2rem;
+        margin-bottom: 16px;
+      }
+
+      #pin-screen {
+        margin: 10vh auto; 
+        width: calc(100% - 40px); 
+        max-width: 360px; 
+        border-radius: 24px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5); 
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <canvas id="galaxy-canvas"></canvas>
+
+  <div class="container">
+
+    <!-- AUTH SCREEN -->
+    <div id="pin-screen" class="card" style="border-radius: 24px;">
+      <div class="auth-logo">
+        <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z">
+          </path>
+        </svg>
+      </div>
+      <h2 style="color: var(--brand-gold); margin-bottom: 8px;">Akses Printer</h2>
+      <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom: 24px;">Silakan masukkan otorisasi.</p>
+      <form id="pin-form">
+        <input type="password" id="pin-input" placeholder="Password..." autofocus required>
+        <button type="submit" id="pin-btn" class="btn-primary" style="width: 100%;">Masuk Sistem</button>
+      </form>
+      <p id="pin-error" style="color: #fca5a5; font-size: 0.85rem; margin-top: 12px;"></p>
+    </div>
+
+    <!-- APP MAIN -->
+    <div id="app" class="card" style="display:none; padding: 0;">
+
+      <div class="header-banner">
+        <h1>
+          WebPrint <span>Epson L360</span>
+        </h1>
+        <button id="logout-btn" class="btn-logout">Keluar</button>
+      </div>
+
+      <div class="nav-container">
+        <nav>
+          <button class="tab-btn active" data-tab="print">
+            <span class="icon">🖨️</span><span class="text">Cetak</span>
+          </button>
+          <button class="tab-btn" data-tab="scan">
+            <span class="icon">📄</span><span class="text">Scan</span>
+          </button>
+          <button class="tab-btn" data-tab="copy">
+            <span class="icon">📑</span><span class="text">Copy</span>
+          </button>
+          <button class="tab-btn" data-tab="queue">
+            <span class="icon">📋</span><span class="text">Antrean</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- TAB: PRINT -->
+      <section id="tab-print" class="tab-panel">
+        <h3 class="section-title">Dokumen Baru</h3>
+        <form id="print-form">
+          <div class="dropzone" id="dropzone" onclick="document.getElementById('print-file').click()">
+            <svg class="dropzone-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+            </svg>
+            <h4 id="file-name-display">Ketuk untuk Pilih File</h4>
+            <p>PDF, JPG, PNG didukung</p>
+            <input type="file" id="print-file" accept=".pdf,.jpg,.jpeg,.png" required>
+          </div>
+
+          <div class="grid-2">
+            <label>Mode Warna
+              <select id="print-color">
+                <option value="monochrome">⚫ Hitam-Putih</option>
+                <option value="color">🌈 Berwarna</option>
+              </select>
+            </label>
+            <label>Jumlah Salinan
+              <input type="number" id="print-copies" value="1" min="1" max="50">
+            </label>
+          </div>
+          <div class="grid-2">
+            <label>Orientasi
+              <select id="print-orient">
+                <option value="portrait">📄 Portrait</option>
+                <option value="landscape">📝 Landscape</option>
+              </select>
+            </label>
+            <label>Ukuran Kertas
+              <select id="print-paper">
+                <option value="A4">A4 Standar</option>
+                <option value="F4">F4 (Folio)</option>
+              </select>
+            </label>
+          </div>
+          <button type="submit" id="print-submit-btn" class="btn-primary">Kirim ke Printer</button>
+        </form>
+      </section>
+
+      <!-- TAB: SCAN -->
+      <section id="tab-scan" class="tab-panel" style="display:none">
+        <h3 class="section-title">Pemindai Dokumen</h3>
+        <form id="scan-form">
+          <div class="grid-2">
+            <label>Resolusi (DPI)
+              <select id="scan-dpi">
+                <option value="150">150 DPI - Cepat</option>
+                <option value="300" selected>300 DPI - Standar HD</option>
+              </select>
+            </label>
+            <label>Mode Scan
+              <select id="scan-mode">
+                <option value="Color">Berwarna</option>
+                <option value="Gray">Grayscale</option>
+              </select>
+            </label>
+          </div>
+          <button type="submit" id="scan-submit-btn" class="btn-primary">Mulai Memindai</button>
+        </form>
+      </section>
+
+      <!-- TAB: COPY -->
+      <section id="tab-copy" class="tab-panel" style="display:none">
+        <h3 class="section-title">Fotocopy Langsung</h3>
+        <form id="copy-form">
+          <div class="grid-2">
+            <label>Resolusi & Warna
+              <select id="copy-dpi">
+                <option value="150">150 DPI</option>
+                <option value="300" selected>300 DPI</option>
+              </select>
+            </label>
+            <label>Mode Hasil
+              <select id="copy-color">
+                <option value="monochrome">⚫ Hitam-Putih</option>
+                <option value="color">🌈 Berwarna</option>
+              </select>
+            </label>
+          </div>
+          <label>Jumlah Salinan
+            <input type="number" id="copy-copies" value="1" min="1" max="20">
+          </label>
+          <button type="submit" id="copy-submit-btn" class="btn-primary">Proses Fotocopy</button>
+        </form>
+      </section>
+
+      <!-- TAB: QUEUE -->
+      <section id="tab-queue" class="tab-panel" style="display:none">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <h3 class="section-title" style="margin-bottom:0;">Status Antrean</h3>
+          <button id="refresh-queue-btn" class="btn-secondary" style="font-size: 0.8rem; padding: 6px 12px;">Muat
+            Ulang</button>
+        </div>
+        <ul id="queue-list" class="queue-list"></ul>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    // Canvas Animation Galaksi
+    const canvas = document.getElementById('galaxy-canvas');
+    const ctx = canvas.getContext('2d');
+    let width, height, stars = [];
+
+    function initGalaxy() {
+      width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; stars = [];
+      for (let i = 0; i < 150; i++) stars.push({ x: Math.random() * width, y: Math.random() * height, r: Math.random() * 1.5, dy: (Math.random() * 0.4) + 0.1, alpha: Math.random() });
+    }
+
+    function animateGalaxy() {
+      ctx.clearRect(0, 0, width, height);
+      stars.forEach(s => {
+        s.y -= s.dy;
+        if (s.y < 0) { s.y = height; s.x = Math.random() * width; }
+        ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2); ctx.fillStyle = `rgba(255, 255, 255, ${s.alpha})`; ctx.fill();
+      });
+      requestAnimationFrame(animateGalaxy);
+    }
+    window.addEventListener('resize', initGalaxy);
+    initGalaxy(); animateGalaxy();
+
+    // Interaksi UI
+    const fileInput = document.getElementById('print-file');
+    const fileDisplay = document.getElementById('file-name-display');
+
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length) { fileDisplay.textContent = e.target.files[0].name; fileDisplay.style.color = 'var(--brand-gold)'; }
+    });
+
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tab-panel').forEach(p => p.style.display = 'none');
+        document.getElementById('tab-' + btn.dataset.tab).style.display = 'block';
+      });
+    });
+
+    // Bypass Login untuk Tes Visual (Hapus saat disambung Backend)
+    document.getElementById('pin-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      document.getElementById('pin-screen').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+    });
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('pin-screen').style.display = 'block';
+    });
+  </script>
+</body>
+
+</html>
